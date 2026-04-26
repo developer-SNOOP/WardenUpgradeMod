@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		" DN",
+		" DN",
+		" S "
+	],
+	"key": {
+		"D": {"item": "minecraft:diamond_block"},
+		"N": {"item": "minecraft:netherite_block"},
+		"S": {"item": "minecraft:stick"}
+	},
+	"result": {
+		"id": "wardenupgrade:hero_sword",
+		"count": 1
+	}
+}

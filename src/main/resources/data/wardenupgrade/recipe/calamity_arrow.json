@@ -1,0 +1,17 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		" E ",
+		" S ",
+		" F "
+	],
+	"key": {
+		"E": {"item": "minecraft:echo_shard"},
+		"S": {"item": "minecraft:stick"},
+		"F": {"item": "minecraft:feather"}
+	},
+	"result": {
+		"id": "wardenupgrade:calamity_arrow",
+		"count": 4
+	}
+}
