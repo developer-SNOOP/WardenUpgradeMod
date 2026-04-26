@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "wardenupgrade",
+	"version": "${version}",
+	"name": "Warden Upgrade",
+	"description": "Upgrade the Warden into a powerful 3-stage boss with new attacks, custom HP bar, and hero gear!",
+	"authors": [
+		"developer-SNOOP"
+	],
+	"contact": {
+		"sources": "https://github.com/developer-SNOOP/wardenupgrade"
+	},
+	"license": "MIT",
+	"icon": "assets/wardenupgrade/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.wardenupgrade.WardenUpgradeMod"
+		],
+		"client": [
+			"com.wardenupgrade.client.WardenUpgradeModClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.2",
+		"minecraft": "~26.1.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

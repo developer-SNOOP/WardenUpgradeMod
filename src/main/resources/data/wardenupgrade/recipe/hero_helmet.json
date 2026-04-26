@@ -1,0 +1,15 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"DND",
+		"N N"
+	],
+	"key": {
+		"D": {"item": "minecraft:diamond_block"},
+		"N": {"item": "minecraft:netherite_block"}
+	},
+	"result": {
+		"id": "wardenupgrade:hero_helmet",
+		"count": 1
+	}
+}
