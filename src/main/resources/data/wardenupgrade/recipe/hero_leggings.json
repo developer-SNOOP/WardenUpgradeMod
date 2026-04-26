@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"pattern": [
+		"DND",
+		"N N",
+		"D D"
+	],
+	"key": {
+		"D": {"item": "minecraft:diamond_block"},
+		"N": {"item": "minecraft:netherite_block"}
+	},
+	"result": {
+		"id": "wardenupgrade:hero_leggings",
+		"count": 1
+	}
+}
