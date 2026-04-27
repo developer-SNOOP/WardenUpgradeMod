@@ -3,6 +3,7 @@ extends Control
 @onready var title_label: Label = $VBoxContainer/TitleLabel
 @onready var play_button: Button = $VBoxContainer/PlayButton
 @onready var difficulty_button: Button = $VBoxContainer/DifficultyButton
+@onready var quality_button: Button = $VBoxContainer/QualityButton
 @onready var settings_button: Button = $VBoxContainer/SettingsButton
 @onready var quit_button: Button = $VBoxContainer/QuitButton
 @onready var settings_panel: Panel = $SettingsPanel
@@ -21,6 +22,7 @@ func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	play_button.pressed.connect(_on_play_pressed)
 	difficulty_button.pressed.connect(_on_difficulty_pressed)
+	quality_button.pressed.connect(_on_quality_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 	settings_back.pressed.connect(_on_settings_back)
@@ -30,6 +32,7 @@ func _ready():
 	headbob_check.toggled.connect(_on_headbob_toggled)
 	settings_panel.visible = false
 	_update_difficulty_label()
+	_update_quality_label()
 	_load_settings_ui()
 
 func _process(delta):
@@ -51,6 +54,17 @@ func _on_difficulty_pressed():
 	_update_difficulty_label()
 	GameManager.save_settings()
 
+func _on_quality_pressed():
+	match GameManager.current_quality:
+		GameManager.Quality.LOW:
+			GameManager.set_quality(GameManager.Quality.MEDIUM)
+		GameManager.Quality.MEDIUM:
+			GameManager.set_quality(GameManager.Quality.HIGH)
+		GameManager.Quality.HIGH:
+			GameManager.set_quality(GameManager.Quality.LOW)
+	_update_quality_label()
+	GameManager.save_settings()
+
 func _update_difficulty_label():
 	var diff_name = GameManager.get_difficulty_name()
 	var color_map = {
@@ -60,6 +74,16 @@ func _update_difficulty_label():
 	}
 	difficulty_button.text = "Difficulty: %s" % diff_name
 	difficulty_button.add_theme_color_override("font_color", color_map.get(diff_name, Color.WHITE))
+
+func _update_quality_label():
+	var q_name = GameManager.get_quality_name()
+	var color_map = {
+		"Low": Color(0.5, 0.8, 0.5),
+		"Medium": Color(0.8, 0.7, 0.3),
+		"High": Color(0.9, 0.3, 0.8),
+	}
+	quality_button.text = "Quality: %s" % q_name
+	quality_button.add_theme_color_override("font_color", color_map.get(q_name, Color.WHITE))
 
 func _on_settings_pressed():
 	settings_panel.visible = true

@@ -1,39 +1,41 @@
 extends Node
 
 enum Difficulty { EASY, MEDIUM, HARD }
+enum Quality { LOW, MEDIUM, HIGH }
 
 var apples_collected: int = 0
 var total_apples: int = 30
 var game_active: bool = false
 var current_difficulty: Difficulty = Difficulty.MEDIUM
+var current_quality: Quality = Quality.MEDIUM
 
 var difficulty_settings = {
 	Difficulty.EASY: {
-		"fedos_base_speed": 1.5,
-		"fedos_speed_increment": 0.5,
+		"fedos_base_speed": 2.0,
+		"fedos_speed_increment": 0.6,
 		"total_apples": 20,
-		"flashlight_range": 20.0,
-		"fedos_detection_delay": 3.0,
-		"player_speed": 5.0,
-		"sprint_speed": 7.5,
+		"flashlight_range": 25.0,
+		"fedos_detection_delay": 5.0,
+		"player_speed": 5.5,
+		"sprint_speed": 8.0,
 	},
 	Difficulty.MEDIUM: {
-		"fedos_base_speed": 2.5,
-		"fedos_speed_increment": 0.8,
+		"fedos_base_speed": 3.0,
+		"fedos_speed_increment": 0.9,
 		"total_apples": 30,
-		"flashlight_range": 15.0,
-		"fedos_detection_delay": 1.0,
-		"player_speed": 4.5,
-		"sprint_speed": 6.5,
+		"flashlight_range": 18.0,
+		"fedos_detection_delay": 2.0,
+		"player_speed": 5.0,
+		"sprint_speed": 7.0,
 	},
 	Difficulty.HARD: {
-		"fedos_base_speed": 3.5,
-		"fedos_speed_increment": 1.2,
+		"fedos_base_speed": 4.0,
+		"fedos_speed_increment": 1.4,
 		"total_apples": 40,
-		"flashlight_range": 10.0,
+		"flashlight_range": 12.0,
 		"fedos_detection_delay": 0.0,
-		"player_speed": 4.0,
-		"sprint_speed": 5.5,
+		"player_speed": 4.5,
+		"sprint_speed": 6.0,
 	}
 }
 
@@ -50,6 +52,7 @@ signal game_lost()
 
 func _ready():
 	_load_settings()
+	_apply_quality()
 
 func start_game():
 	var settings = difficulty_settings[current_difficulty]
@@ -90,12 +93,14 @@ func lose_game():
 	game_lost.emit()
 
 func restart():
+	start_game()
 	get_tree().reload_current_scene()
 
 func go_to_menu():
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 func go_to_game():
+	start_game()
 	get_tree().change_scene_to_file("res://scenes/game.tscn")
 
 func set_difficulty(diff: Difficulty):
@@ -111,6 +116,38 @@ func get_difficulty_name() -> String:
 			return "Hard"
 	return "Medium"
 
+func set_quality(q: Quality):
+	current_quality = q
+	_apply_quality()
+
+func get_quality_name() -> String:
+	match current_quality:
+		Quality.LOW:
+			return "Low"
+		Quality.MEDIUM:
+			return "Medium"
+		Quality.HIGH:
+			return "High"
+	return "Medium"
+
+func _apply_quality():
+	var vp = get_viewport()
+	if vp == null:
+		return
+	match current_quality:
+		Quality.LOW:
+			vp.scaling_3d_scale = 0.5
+			vp.msaa_3d = Viewport.MSAA_DISABLED
+			RenderingServer.directional_shadow_atlas_set_size(512, false)
+		Quality.MEDIUM:
+			vp.scaling_3d_scale = 0.75
+			vp.msaa_3d = Viewport.MSAA_DISABLED
+			RenderingServer.directional_shadow_atlas_set_size(1024, false)
+		Quality.HIGH:
+			vp.scaling_3d_scale = 1.0
+			vp.msaa_3d = Viewport.MSAA_2X
+			RenderingServer.directional_shadow_atlas_set_size(2048, true)
+
 func _save_settings():
 	var config = ConfigFile.new()
 	config.set_value("settings", "look_sensitivity", look_sensitivity)
@@ -119,6 +156,7 @@ func _save_settings():
 	config.set_value("settings", "show_fps", show_fps)
 	config.set_value("settings", "head_bob_enabled", head_bob_enabled)
 	config.set_value("settings", "difficulty", current_difficulty)
+	config.set_value("settings", "quality", current_quality)
 	config.save("user://settings.cfg")
 
 func _load_settings():
@@ -130,6 +168,7 @@ func _load_settings():
 		show_fps = config.get_value("settings", "show_fps", false)
 		head_bob_enabled = config.get_value("settings", "head_bob_enabled", true)
 		current_difficulty = config.get_value("settings", "difficulty", Difficulty.MEDIUM)
+		current_quality = config.get_value("settings", "quality", Quality.MEDIUM)
 
 func save_settings():
 	_save_settings()

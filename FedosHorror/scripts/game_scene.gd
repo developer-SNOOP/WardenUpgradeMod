@@ -8,9 +8,88 @@ extends Node3D
 var apple_scene: PackedScene
 
 func _ready():
-	GameManager.start_game()
 	apple_scene = load("res://scenes/apple.tscn")
+	_build_interior_walls()
 	_spawn_apples()
+	_add_room_lights()
+
+func _build_interior_walls():
+	var wall_mat = StandardMaterial3D.new()
+	wall_mat.albedo_color = Color(0.2, 0.15, 0.12, 1)
+	wall_mat.roughness = 0.9
+	wall_mat.emission_enabled = false
+
+	var wall_defs = [
+		# Long corridors dividing the house
+		{"pos": Vector3(-20, 1.75, 0), "size": Vector3(30, 3.5, 0.25)},
+		{"pos": Vector3(20, 1.75, 0), "size": Vector3(30, 3.5, 0.25)},
+		{"pos": Vector3(0, 1.75, -20), "size": Vector3(0.25, 3.5, 30)},
+		{"pos": Vector3(0, 1.75, 20), "size": Vector3(0.25, 3.5, 30)},
+		# Inner partitions creating rooms
+		{"pos": Vector3(-35, 1.75, -25), "size": Vector3(0.25, 3.5, 18)},
+		{"pos": Vector3(-35, 1.75, 25), "size": Vector3(0.25, 3.5, 18)},
+		{"pos": Vector3(35, 1.75, -25), "size": Vector3(0.25, 3.5, 18)},
+		{"pos": Vector3(35, 1.75, 25), "size": Vector3(0.25, 3.5, 18)},
+		{"pos": Vector3(-25, 1.75, -35), "size": Vector3(18, 3.5, 0.25)},
+		{"pos": Vector3(25, 1.75, -35), "size": Vector3(18, 3.5, 0.25)},
+		{"pos": Vector3(-25, 1.75, 35), "size": Vector3(18, 3.5, 0.25)},
+		{"pos": Vector3(25, 1.75, 35), "size": Vector3(18, 3.5, 0.25)},
+		# More inner walls for complexity
+		{"pos": Vector3(-10, 1.75, -40), "size": Vector3(15, 3.5, 0.25)},
+		{"pos": Vector3(10, 1.75, 40), "size": Vector3(15, 3.5, 0.25)},
+		{"pos": Vector3(-40, 1.75, 10), "size": Vector3(0.25, 3.5, 15)},
+		{"pos": Vector3(40, 1.75, -10), "size": Vector3(0.25, 3.5, 15)},
+		# Additional partitions
+		{"pos": Vector3(-15, 1.75, -15), "size": Vector3(10, 3.5, 0.25)},
+		{"pos": Vector3(15, 1.75, 15), "size": Vector3(10, 3.5, 0.25)},
+		{"pos": Vector3(-15, 1.75, 15), "size": Vector3(0.25, 3.5, 10)},
+		{"pos": Vector3(15, 1.75, -15), "size": Vector3(0.25, 3.5, 10)},
+	]
+
+	for wd in wall_defs:
+		var body = StaticBody3D.new()
+		body.position = wd["pos"]
+
+		var mesh_inst = MeshInstance3D.new()
+		var box = BoxMesh.new()
+		box.size = wd["size"]
+		mesh_inst.mesh = box
+		mesh_inst.material_override = wall_mat
+		body.add_child(mesh_inst)
+
+		var col = CollisionShape3D.new()
+		var shape = BoxShape3D.new()
+		shape.size = wd["size"]
+		col.shape = shape
+		body.add_child(col)
+
+		nav_region.add_child(body)
+
+func _add_room_lights():
+	var light_positions = [
+		{"pos": Vector3(-30, 2.8, -30), "color": Color(0.6, 0.45, 0.25), "energy": 0.5},
+		{"pos": Vector3(30, 2.8, -30), "color": Color(0.3, 0.3, 0.55), "energy": 0.35},
+		{"pos": Vector3(-30, 2.8, 30), "color": Color(0.5, 0.2, 0.2), "energy": 0.3},
+		{"pos": Vector3(30, 2.8, 30), "color": Color(0.2, 0.4, 0.2), "energy": 0.25},
+		{"pos": Vector3(0, 2.8, 0), "color": Color(0.7, 0.5, 0.3), "energy": 0.4},
+		{"pos": Vector3(-45, 2.8, 0), "color": Color(0.4, 0.3, 0.5), "energy": 0.3},
+		{"pos": Vector3(45, 2.8, 0), "color": Color(0.5, 0.4, 0.2), "energy": 0.25},
+		{"pos": Vector3(0, 2.8, -45), "color": Color(0.3, 0.5, 0.3), "energy": 0.2},
+		{"pos": Vector3(0, 2.8, 45), "color": Color(0.5, 0.2, 0.3), "energy": 0.3},
+		{"pos": Vector3(-20, 2.8, -20), "color": Color(0.6, 0.3, 0.2), "energy": 0.35},
+		{"pos": Vector3(20, 2.8, 20), "color": Color(0.3, 0.3, 0.6), "energy": 0.3},
+		{"pos": Vector3(-20, 2.8, 20), "color": Color(0.5, 0.5, 0.3), "energy": 0.25},
+		{"pos": Vector3(20, 2.8, -20), "color": Color(0.4, 0.2, 0.5), "energy": 0.3},
+	]
+	for ld in light_positions:
+		var light = OmniLight3D.new()
+		light.position = ld["pos"]
+		light.light_color = ld["color"]
+		light.light_energy = ld["energy"]
+		light.omni_range = 12.0
+		light.omni_attenuation = 1.5
+		light.shadow_enabled = true
+		add_child(light)
 
 func _spawn_apples():
 	var apple_positions = _generate_apple_positions()
@@ -21,28 +100,34 @@ func _spawn_apples():
 
 func _generate_apple_positions() -> Array[Vector3]:
 	var positions: Array[Vector3] = []
-	var rooms = [
-		# Room 1 - living room area
-		{"min": Vector3(-9, 0.5, -9), "max": Vector3(-1, 0.5, -1)},
-		# Room 2 - kitchen area
-		{"min": Vector3(1, 0.5, -9), "max": Vector3(9, 0.5, -1)},
-		# Room 3 - hallway
-		{"min": Vector3(-3, 0.5, -1), "max": Vector3(3, 0.5, 1)},
-		# Room 4 - bedroom
-		{"min": Vector3(-9, 0.5, 1), "max": Vector3(-1, 0.5, 9)},
-		# Room 5 - bathroom/storage
-		{"min": Vector3(1, 0.5, 1), "max": Vector3(9, 0.5, 9)},
+	var zones = [
+		{"min": Vector3(-50, 0.5, -50), "max": Vector3(-25, 0.5, -25)},
+		{"min": Vector3(-25, 0.5, -50), "max": Vector3(0, 0.5, -25)},
+		{"min": Vector3(0, 0.5, -50), "max": Vector3(25, 0.5, -25)},
+		{"min": Vector3(25, 0.5, -50), "max": Vector3(50, 0.5, -25)},
+		{"min": Vector3(-50, 0.5, -25), "max": Vector3(-25, 0.5, 0)},
+		{"min": Vector3(-25, 0.5, -25), "max": Vector3(0, 0.5, 0)},
+		{"min": Vector3(0, 0.5, -25), "max": Vector3(25, 0.5, 0)},
+		{"min": Vector3(25, 0.5, -25), "max": Vector3(50, 0.5, 0)},
+		{"min": Vector3(-50, 0.5, 0), "max": Vector3(-25, 0.5, 25)},
+		{"min": Vector3(-25, 0.5, 0), "max": Vector3(0, 0.5, 25)},
+		{"min": Vector3(0, 0.5, 0), "max": Vector3(25, 0.5, 25)},
+		{"min": Vector3(25, 0.5, 0), "max": Vector3(50, 0.5, 25)},
+		{"min": Vector3(-50, 0.5, 25), "max": Vector3(-25, 0.5, 50)},
+		{"min": Vector3(-25, 0.5, 25), "max": Vector3(0, 0.5, 50)},
+		{"min": Vector3(0, 0.5, 25), "max": Vector3(25, 0.5, 50)},
+		{"min": Vector3(25, 0.5, 25), "max": Vector3(50, 0.5, 50)},
 	]
 
 	var rng = RandomNumberGenerator.new()
-	rng.seed = hash("fedos_horror_apples")
+	rng.seed = hash("fedos_horror_big_map")
 
 	for i in range(GameManager.total_apples):
-		var room = rooms[i % rooms.size()]
+		var zone = zones[i % zones.size()]
 		var pos = Vector3(
-			rng.randf_range(room["min"].x + 0.5, room["max"].x - 0.5),
-			room["min"].y,
-			rng.randf_range(room["min"].z + 0.5, room["max"].z - 0.5)
+			rng.randf_range(zone["min"].x + 2.0, zone["max"].x - 2.0),
+			zone["min"].y,
+			rng.randf_range(zone["min"].z + 2.0, zone["max"].z - 2.0)
 		)
 		positions.append(pos)
 
