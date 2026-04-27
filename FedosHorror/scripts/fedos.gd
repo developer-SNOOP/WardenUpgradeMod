@@ -16,8 +16,13 @@ var arm_swing_time: float = 0.0
 var stuck_timer: float = 0.0
 var last_position: Vector3 = Vector3.ZERO
 var wander_angle: float = 0.0
+var voice_timer: float = 0.0
+var next_voice_time: float = 8.0
+var voice_player: AudioStreamPlayer3D = null
+var voice_lines: Array = []
 
 func _ready():
+	_setup_voice()
 	detection_timer = GameManager.get_detection_delay()
 	await get_tree().create_timer(0.5).timeout
 	player = get_tree().get_first_node_in_group("player")
@@ -40,6 +45,13 @@ func _physics_process(delta):
 
 	current_speed = GameManager.get_fedos_speed()
 	time_elapsed += delta
+
+	# Voice line playback
+	voice_timer += delta
+	if voice_timer >= next_voice_time and voice_player and not voice_player.playing:
+		_play_random_voice()
+		voice_timer = 0.0
+		next_voice_time = randf_range(6.0, 15.0)
 
 	if not is_on_floor():
 		velocity.y -= gravity * delta
@@ -117,3 +129,24 @@ func _physics_process(delta):
 		fedos_light.light_energy = 0.6 + aggro * 0.5
 
 	move_and_slide()
+
+func _setup_voice():
+	voice_player = AudioStreamPlayer3D.new()
+	voice_player.max_db = 10.0
+	voice_player.unit_size = 15.0
+	voice_player.max_distance = 50.0
+	voice_player.attenuation_model = AudioStreamPlayer3D.ATTENUATION_INVERSE_DISTANCE
+	add_child(voice_player)
+	for i in range(1, 5):
+		var path = "res://audio/fedos_voice%d.ogg" % i
+		var stream = load(path)
+		if stream:
+			voice_lines.append(stream)
+
+func _play_random_voice():
+	if voice_lines.size() == 0:
+		return
+	var idx = randi() % voice_lines.size()
+	voice_player.stream = voice_lines[idx]
+	voice_player.pitch_scale = randf_range(0.85, 1.1)
+	voice_player.play()

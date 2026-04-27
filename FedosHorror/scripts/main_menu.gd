@@ -24,6 +24,7 @@ extends Control
 var time: float = 0.0
 var flicker_timer: float = 0.0
 var next_flicker: float = 3.0
+var music_player: AudioStreamPlayer = null
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -41,6 +42,7 @@ func _ready():
 	_update_difficulty_label()
 	_update_quality_label()
 	_load_settings_ui()
+	_start_menu_music()
 
 func _process(delta):
 	time += delta
@@ -84,7 +86,19 @@ func _process(delta):
 		static_noise.modulate.a = randf_range(0.01, 0.04)
 
 func _on_play_pressed():
+	if music_player:
+		music_player.stop()
 	GameManager.go_to_game()
+
+func _start_menu_music():
+	var stream = load("res://audio/menu_music.ogg")
+	if stream:
+		music_player = AudioStreamPlayer.new()
+		music_player.stream = stream
+		music_player.volume_db = -6.0
+		music_player.autoplay = false
+		add_child(music_player)
+		music_player.play()
 
 func _on_difficulty_pressed():
 	match GameManager.current_difficulty:
