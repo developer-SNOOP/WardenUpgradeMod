@@ -35,7 +35,7 @@ func update_apple_count(count: int):
 
 func _on_apple_collected(count: int):
 	update_apple_count(count)
-	if count % 5 == 0 and count > 0:
+	if count % 5 == 0 and count > 0 and count < GameManager.total_apples:
 		speed_warning.visible = true
 		speed_warning.text = "FEDOS SPEEDS UP!"
 		warning_timer = 2.0

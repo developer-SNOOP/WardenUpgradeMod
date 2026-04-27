@@ -16,8 +16,8 @@ func _spawn_apples():
 	var apple_positions = _generate_apple_positions()
 	for pos in apple_positions:
 		var apple = apple_scene.instantiate()
+		apple.position = pos
 		nav_region.add_child(apple)
-		apple.global_position = pos
 
 func _generate_apple_positions() -> Array[Vector3]:
 	var positions: Array[Vector3] = []
