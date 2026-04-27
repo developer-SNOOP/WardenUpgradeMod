@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://menu001"]
 
 [ext_resource type="Script" path="res://scripts/main_menu.gd" id="1"]
-[ext_resource type="Texture2D" path="res://textures/fedos_face.jpg" id="2"]
+[ext_resource type="Texture2D" path="res://textures/fedos_menu.png" id="2"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -35,7 +35,7 @@ grow_vertical = 2
 texture = ExtResource("2")
 expand_mode = 1
 stretch_mode = 6
-modulate = Color(0.5, 0.3, 0.3, 0.6)
+modulate = Color(1.0, 0.85, 0.85, 0.75)
 
 [node name="FedosGlowOverlay" type="ColorRect" parent="."]
 layout_mode = 1
