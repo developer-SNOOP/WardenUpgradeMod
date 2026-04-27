@@ -7,18 +7,17 @@ extends CharacterBody3D
 var player: CharacterBody3D = null
 var current_speed: float = 2.0
 var gravity: float = 9.8
-var wander_timer: float = 0.0
-var wander_target: Vector3 = Vector3.ZERO
-var is_chasing: bool = false
-var detection_range: float = 50.0
 var catch_distance: float = 1.8
 var time_elapsed: float = 0.0
 var breathing_intensity: float = 0.0
+var detection_timer: float = 0.0
+var is_active: bool = false
+var aggro_pulse: float = 0.0
 
 func _ready():
+	detection_timer = GameManager.get_detection_delay()
 	await get_tree().create_timer(0.5).timeout
 	player = get_tree().get_first_node_in_group("player")
-	_pick_wander_target()
 
 func _physics_process(delta):
 	if not GameManager.game_active:
@@ -28,10 +27,17 @@ func _physics_process(delta):
 		if player == null:
 			return
 
-	current_speed = GameManager.get_fedos_speed()
+	if not is_active:
+		detection_timer -= delta
+		if detection_timer <= 0:
+			is_active = true
+		else:
+			return
 
+	current_speed = GameManager.get_fedos_speed()
 	time_elapsed += delta
 	breathing_intensity = sin(time_elapsed * 3.0) * 0.05
+	aggro_pulse = sin(time_elapsed * 5.0) * 0.3 + 0.7
 
 	if not is_on_floor():
 		velocity.y -= gravity * delta
@@ -42,7 +48,6 @@ func _physics_process(delta):
 		GameManager.lose_game()
 		return
 
-	is_chasing = true
 	nav_agent.target_position = player.global_position
 
 	if nav_agent.is_navigation_finished():
@@ -54,7 +59,6 @@ func _physics_process(delta):
 		velocity.x = direction.x * current_speed
 		velocity.z = direction.z * current_speed
 
-	# Fedos looks at player
 	var look_target = player.global_position
 	look_target.y = global_position.y
 	if global_position.distance_to(look_target) > 0.1:
@@ -62,11 +66,15 @@ func _physics_process(delta):
 		var target_angle = atan2(-look_dir.x, -look_dir.z)
 		rotation.y = lerp_angle(rotation.y, target_angle, delta * 5.0)
 
-	# Breathing animation on mesh
 	if mesh:
 		mesh.scale = Vector3(1.0, 1.0 + breathing_intensity, 1.0)
 
-	move_and_slide()
+	var eye_light = get_node_or_null("FedosEyeLight")
+	if eye_light:
+		eye_light.light_energy = 0.3 + aggro_pulse * 0.4
 
-func _pick_wander_target():
-	wander_target = global_position + Vector3(randf_range(-8, 8), 0, randf_range(-8, 8))
+	var fedos_light = get_node_or_null("FedosLight")
+	if fedos_light:
+		fedos_light.light_energy = 0.5 + aggro_pulse * 0.3
+
+	move_and_slide()
