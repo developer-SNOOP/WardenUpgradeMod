@@ -61,7 +61,7 @@ func _physics_process(delta):
 		if moved < 0.3:
 			wander_angle += PI * 0.4
 		else:
-			wander_angle = move_toward(wander_angle, 0.0, delta * 3.0)
+			wander_angle = move_toward(wander_angle, 0.0, 0.5 * 3.0)
 		last_position = global_position
 		stuck_timer = 0.0
 

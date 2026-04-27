@@ -18,8 +18,8 @@ var warning_timer: float = 0.0
 var shake_amount: float = 0.0
 var heartbeat_time: float = 0.0
 var is_sprinting_touch: bool = false
-var flashlight_touch_area: Rect2 = Rect2(1100, 560, 180, 80)
-var sprint_touch_area: Rect2 = Rect2(1100, 490, 180, 60)
+var flashlight_touch_area: Rect2 = Rect2(1100, 650, 180, 70)
+var sprint_touch_area: Rect2 = Rect2(1100, 600, 180, 60)
 var sprint_touch_index: int = -1
 
 func _ready():
