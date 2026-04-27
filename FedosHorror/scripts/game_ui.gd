@@ -84,7 +84,7 @@ func _process(delta):
 		stamina_bar.value = player.stamina
 		stamina_bar.visible = player.stamina < player.max_stamina
 		sprint_label.visible = player.stamina < player.max_stamina
-		player.is_sprinting = is_sprinting_touch or Input.is_action_pressed("sprint")
+		player.is_sprinting_touch = is_sprinting_touch
 
 	# Heartbeat proximity system
 	if GameManager.game_active:

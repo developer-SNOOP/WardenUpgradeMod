@@ -19,6 +19,7 @@ var max_stamina: float = 100.0
 var stamina_drain: float = 20.0
 var stamina_regen: float = 15.0
 var joystick_move_vec: Vector2 = Vector2.ZERO
+var is_sprinting_touch: bool = false
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -74,7 +75,7 @@ func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y -= 9.8 * delta
 
-	is_sprinting = Input.is_action_pressed("sprint") and stamina > 0
+	is_sprinting = (Input.is_action_pressed("sprint") or is_sprinting_touch) and stamina > 0
 	if is_sprinting:
 		stamina = max(0, stamina - stamina_drain * delta)
 	else:

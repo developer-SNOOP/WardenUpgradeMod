@@ -1,7 +1,7 @@
 extends CharacterBody3D
 
 @onready var body_mesh: MeshInstance3D = $Body
-@onready var head_mesh: MeshInstance3D = $Head
+@onready var head_mesh: MeshInstance3D = $FaceFront
 @onready var left_arm: MeshInstance3D = $LeftArm
 @onready var right_arm: MeshInstance3D = $RightArm
 
