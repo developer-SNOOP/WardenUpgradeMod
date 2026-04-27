@@ -12,7 +12,6 @@ func _ready():
 	apple_scene = load("res://scenes/apple.tscn")
 	wall_texture = load("res://textures/wall_inner.png")
 	_build_interior_walls()
-	nav_region.bake_navigation_mesh()
 	_spawn_apples()
 	_add_room_lights()
 

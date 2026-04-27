@@ -191,10 +191,6 @@ collision_layer = 2
 collision_mask = 1
 script = ExtResource("3")
 
-[node name="NavigationAgent3D" type="NavigationAgent3D" parent="Fedos"]
-path_desired_distance = 0.5
-target_desired_distance = 1.5
-
 [node name="Body" type="MeshInstance3D" parent="Fedos"]
 mesh = SubResource("CapsuleMesh_fedos")
 surface_material_override/0 = SubResource("Material_fedos_body")
