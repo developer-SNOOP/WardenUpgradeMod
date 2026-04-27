@@ -1,16 +1,16 @@
 {
 	"type": "minecraft:crafting_shaped",
+	"category": "equipment",
+	"key": {
+		"D": "minecraft:diamond_block",
+		"N": "minecraft:netherite_block"
+	},
 	"pattern": [
 		"D D",
 		"NDN",
 		"NNN"
 	],
-	"key": {
-		"D": {"item": "minecraft:diamond_block"},
-		"N": {"item": "minecraft:netherite_block"}
-	},
 	"result": {
-		"id": "wardenupgrade:hero_chestplate",
-		"count": 1
+		"id": "wardenupgrade:hero_chestplate"
 	}
 }
