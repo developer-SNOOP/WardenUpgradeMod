@@ -18,8 +18,8 @@ var warning_timer: float = 0.0
 var shake_amount: float = 0.0
 var heartbeat_time: float = 0.0
 var is_sprinting_touch: bool = false
-var flashlight_touch_area: Rect2 = Rect2(1100, 650, 180, 70)
-var sprint_touch_area: Rect2 = Rect2(1100, 600, 180, 60)
+var flashlight_touch_area: Rect2 = Rect2()
+var sprint_touch_area: Rect2 = Rect2()
 var sprint_touch_index: int = -1
 
 func _ready():
@@ -37,11 +37,21 @@ func _ready():
 	if joystick and joystick.has_signal("joystick_input"):
 		joystick.joystick_input.connect(_on_joystick_input)
 
+func _update_touch_areas():
+	var pad = 15.0
+	if flashlight_label:
+		var r = flashlight_label.get_global_rect()
+		flashlight_touch_area = Rect2(r.position.x - pad, r.position.y - pad, r.size.x + pad * 2, r.size.y + pad * 2)
+	if sprint_button:
+		var r = sprint_button.get_global_rect()
+		sprint_touch_area = Rect2(r.position.x - pad, r.position.y - pad, r.size.x + pad * 2, r.size.y + pad * 2)
+
 func _input(event):
 	if not GameManager.game_active:
 		return
 
 	if event is InputEventScreenTouch:
+		_update_touch_areas()
 		if event.pressed:
 			if flashlight_touch_area.has_point(event.position):
 				_toggle_flashlight()

@@ -59,7 +59,7 @@ func _physics_process(delta):
 	if stuck_timer > 0.5:
 		var moved = global_position.distance_to(last_position)
 		if moved < 0.3:
-			wander_angle += PI * 0.4
+			wander_angle = min(wander_angle + PI * 0.4, PI)
 		else:
 			wander_angle = move_toward(wander_angle, 0.0, 0.5 * 3.0)
 		last_position = global_position
