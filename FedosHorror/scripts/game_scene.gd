@@ -133,7 +133,4 @@ func _on_menu_pressed():
 func _on_retry_pressed():
 	GameManager.restart()
 
-func _on_flashlight_pressed():
-	var flashlight = player.get_node("Camera3D/Flashlight")
-	if flashlight:
-		flashlight.visible = !flashlight.visible
+

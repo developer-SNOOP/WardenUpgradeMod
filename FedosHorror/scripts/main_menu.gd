@@ -14,11 +14,16 @@ extends Control
 @onready var fps_check: CheckButton = $SettingsPanel/VBox/FPSRow/FPSCheck
 @onready var headbob_check: CheckButton = $SettingsPanel/VBox/HeadBobRow/HeadBobCheck
 @onready var settings_back: Button = $SettingsPanel/VBox/BackButton
-@onready var particles: CPUParticles2D = $Particles
 @onready var glow_line1: ColorRect = $GlowLine1
 @onready var glow_line2: ColorRect = $GlowLine2
+@onready var fedos_image: TextureRect = $FedosImage
+@onready var fedos_glow: ColorRect = $FedosGlowOverlay
+@onready var scan_line: ColorRect = $ScanLine
+@onready var static_noise: ColorRect = $StaticNoise
 
 var time: float = 0.0
+var flicker_timer: float = 0.0
+var next_flicker: float = 3.0
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -39,13 +44,44 @@ func _ready():
 
 func _process(delta):
 	time += delta
-	var pulse = 0.6 + sin(time * 2.5) * 0.4
-	title_label.modulate = Color(pulse, 0.08, 0.1, 1.0)
 
+	# Title pulse
+	var pulse = 0.55 + sin(time * 2.0) * 0.45
+	title_label.modulate = Color(pulse, 0.06, 0.08, 1.0)
+
+	# Glow lines animate
 	if glow_line1:
 		glow_line1.modulate.a = 0.3 + sin(time * 1.5) * 0.15
 	if glow_line2:
 		glow_line2.modulate.a = 0.25 + sin(time * 1.8 + 1.0) * 0.15
+
+	# Scan line moves down
+	if scan_line:
+		var screen_h = get_viewport().get_visible_rect().size.y
+		scan_line.position.y = fmod(time * 80.0, screen_h + 10.0) - 5.0
+		scan_line.modulate.a = 0.2 + sin(time * 3.0) * 0.1
+
+	# Fedos image: subtle breathing and occasional flicker
+	if fedos_image:
+		var breathe = 1.0 + sin(time * 1.5) * 0.02
+		fedos_image.scale = Vector2(breathe, breathe)
+
+		flicker_timer += delta
+		if flicker_timer > next_flicker:
+			flicker_timer = 0.0
+			next_flicker = randf_range(2.0, 6.0)
+			fedos_image.modulate.a = 0.1
+		elif flicker_timer < 0.1 and fedos_image.modulate.a < 0.5:
+			fedos_image.modulate.a = 0.6
+		else:
+			fedos_image.modulate.a = lerp(fedos_image.modulate.a, 0.55, delta * 2.0)
+
+	if fedos_glow:
+		fedos_glow.modulate.a = 0.1 + sin(time * 2.5) * 0.08
+
+	# Static noise flicker
+	if static_noise:
+		static_noise.modulate.a = randf_range(0.01, 0.04)
 
 func _on_play_pressed():
 	GameManager.go_to_game()
