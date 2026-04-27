@@ -20,6 +20,7 @@ func _ready():
 	lose_panel.visible = false
 	speed_warning.visible = false
 	update_apple_count(0)
+	vignette.modulate.a = 0.0
 	GameManager.apple_collected.connect(_on_apple_collected)
 	GameManager.game_won.connect(_on_game_won)
 	GameManager.game_lost.connect(_on_game_lost)

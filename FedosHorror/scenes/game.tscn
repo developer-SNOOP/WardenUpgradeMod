@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://game001"]
+[gd_scene load_steps=29 format=3 uid="uid://game001"]
 
 [ext_resource type="Script" path="res://scripts/game_scene.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/player.gd" id="2"]
@@ -110,12 +110,6 @@ volumetric_fog_enabled = true
 volumetric_fog_density = 0.02
 volumetric_fog_albedo = Color(0.05, 0.03, 0.05, 1)
 volumetric_fog_length = 20.0
-
-[sub_resource type="StandardMaterial3D" id="Material_apple"]
-albedo_color = Color(0.1, 0.8, 0.1, 1)
-emission_enabled = true
-emission = Color(0.1, 0.6, 0.1, 1)
-emission_energy_multiplier = 0.8
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1")
@@ -425,7 +419,8 @@ visible = false
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.3, 0, 0, 0)
+color = Color(0.3, 0, 0, 1)
+modulate = Color(1, 1, 1, 0)
 mouse_filter = 2
 
 [node name="VirtualJoystick" type="Control" parent="GameUI"]
