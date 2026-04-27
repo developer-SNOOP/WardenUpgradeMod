@@ -93,8 +93,9 @@ func lose_game():
 	game_lost.emit()
 
 func restart():
-	start_game()
+	game_active = false
 	get_tree().reload_current_scene()
+	start_game.call_deferred()
 
 func go_to_menu():
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
@@ -136,17 +137,17 @@ func _apply_quality():
 		return
 	match current_quality:
 		Quality.LOW:
-			vp.scaling_3d_scale = 0.5
+			vp.scaling_3d_scale = 0.4
+			vp.msaa_3d = Viewport.MSAA_DISABLED
+			RenderingServer.directional_shadow_atlas_set_size(256, false)
+		Quality.MEDIUM:
+			vp.scaling_3d_scale = 0.6
 			vp.msaa_3d = Viewport.MSAA_DISABLED
 			RenderingServer.directional_shadow_atlas_set_size(512, false)
-		Quality.MEDIUM:
-			vp.scaling_3d_scale = 0.75
+		Quality.HIGH:
+			vp.scaling_3d_scale = 0.85
 			vp.msaa_3d = Viewport.MSAA_DISABLED
 			RenderingServer.directional_shadow_atlas_set_size(1024, false)
-		Quality.HIGH:
-			vp.scaling_3d_scale = 1.0
-			vp.msaa_3d = Viewport.MSAA_2X
-			RenderingServer.directional_shadow_atlas_set_size(2048, true)
 
 func _save_settings():
 	var config = ConfigFile.new()

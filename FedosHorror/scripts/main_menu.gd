@@ -15,6 +15,8 @@ extends Control
 @onready var headbob_check: CheckButton = $SettingsPanel/VBox/HeadBobRow/HeadBobCheck
 @onready var settings_back: Button = $SettingsPanel/VBox/BackButton
 @onready var particles: CPUParticles2D = $Particles
+@onready var glow_line1: ColorRect = $GlowLine1
+@onready var glow_line2: ColorRect = $GlowLine2
 
 var time: float = 0.0
 
@@ -37,8 +39,13 @@ func _ready():
 
 func _process(delta):
 	time += delta
-	var pulse = 0.7 + sin(time * 2.0) * 0.3
-	title_label.modulate = Color(pulse, 0.05, 0.05, 1.0)
+	var pulse = 0.6 + sin(time * 2.5) * 0.4
+	title_label.modulate = Color(pulse, 0.08, 0.1, 1.0)
+
+	if glow_line1:
+		glow_line1.modulate.a = 0.3 + sin(time * 1.5) * 0.15
+	if glow_line2:
+		glow_line2.modulate.a = 0.25 + sin(time * 1.8 + 1.0) * 0.15
 
 func _on_play_pressed():
 	GameManager.go_to_game()
@@ -68,9 +75,9 @@ func _on_quality_pressed():
 func _update_difficulty_label():
 	var diff_name = GameManager.get_difficulty_name()
 	var color_map = {
-		"Easy": Color(0.2, 0.8, 0.2),
-		"Medium": Color(0.9, 0.7, 0.1),
-		"Hard": Color(0.9, 0.15, 0.15),
+		"Easy": Color(0.2, 0.85, 0.2),
+		"Medium": Color(0.95, 0.75, 0.1),
+		"Hard": Color(0.95, 0.12, 0.12),
 	}
 	difficulty_button.text = "Difficulty: %s" % diff_name
 	difficulty_button.add_theme_color_override("font_color", color_map.get(diff_name, Color.WHITE))
@@ -78,9 +85,9 @@ func _update_difficulty_label():
 func _update_quality_label():
 	var q_name = GameManager.get_quality_name()
 	var color_map = {
-		"Low": Color(0.5, 0.8, 0.5),
-		"Medium": Color(0.8, 0.7, 0.3),
-		"High": Color(0.9, 0.3, 0.8),
+		"Low": Color(0.5, 0.85, 0.5),
+		"Medium": Color(0.85, 0.75, 0.3),
+		"High": Color(0.95, 0.3, 0.85),
 	}
 	quality_button.text = "Quality: %s" % q_name
 	quality_button.add_theme_color_override("font_color", color_map.get(q_name, Color.WHITE))

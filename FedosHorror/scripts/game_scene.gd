@@ -6,44 +6,43 @@ extends Node3D
 @onready var nav_region: NavigationRegion3D = $NavigationRegion3D
 
 var apple_scene: PackedScene
+var wall_texture: Texture2D
 
 func _ready():
 	apple_scene = load("res://scenes/apple.tscn")
+	wall_texture = load("res://textures/wall_inner.png")
 	_build_interior_walls()
+	nav_region.bake_navigation_mesh()
 	_spawn_apples()
 	_add_room_lights()
 
 func _build_interior_walls():
 	var wall_mat = StandardMaterial3D.new()
-	wall_mat.albedo_color = Color(0.2, 0.15, 0.12, 1)
+	wall_mat.albedo_texture = wall_texture
+	wall_mat.uv1_scale = Vector3(4, 2, 1)
 	wall_mat.roughness = 0.9
-	wall_mat.emission_enabled = false
 
 	var wall_defs = [
-		# Long corridors dividing the house
-		{"pos": Vector3(-20, 1.75, 0), "size": Vector3(30, 3.5, 0.25)},
-		{"pos": Vector3(20, 1.75, 0), "size": Vector3(30, 3.5, 0.25)},
-		{"pos": Vector3(0, 1.75, -20), "size": Vector3(0.25, 3.5, 30)},
-		{"pos": Vector3(0, 1.75, 20), "size": Vector3(0.25, 3.5, 30)},
-		# Inner partitions creating rooms
-		{"pos": Vector3(-35, 1.75, -25), "size": Vector3(0.25, 3.5, 18)},
-		{"pos": Vector3(-35, 1.75, 25), "size": Vector3(0.25, 3.5, 18)},
-		{"pos": Vector3(35, 1.75, -25), "size": Vector3(0.25, 3.5, 18)},
-		{"pos": Vector3(35, 1.75, 25), "size": Vector3(0.25, 3.5, 18)},
-		{"pos": Vector3(-25, 1.75, -35), "size": Vector3(18, 3.5, 0.25)},
-		{"pos": Vector3(25, 1.75, -35), "size": Vector3(18, 3.5, 0.25)},
-		{"pos": Vector3(-25, 1.75, 35), "size": Vector3(18, 3.5, 0.25)},
-		{"pos": Vector3(25, 1.75, 35), "size": Vector3(18, 3.5, 0.25)},
-		# More inner walls for complexity
-		{"pos": Vector3(-10, 1.75, -40), "size": Vector3(15, 3.5, 0.25)},
-		{"pos": Vector3(10, 1.75, 40), "size": Vector3(15, 3.5, 0.25)},
-		{"pos": Vector3(-40, 1.75, 10), "size": Vector3(0.25, 3.5, 15)},
-		{"pos": Vector3(40, 1.75, -10), "size": Vector3(0.25, 3.5, 15)},
-		# Additional partitions
-		{"pos": Vector3(-15, 1.75, -15), "size": Vector3(10, 3.5, 0.25)},
-		{"pos": Vector3(15, 1.75, 15), "size": Vector3(10, 3.5, 0.25)},
-		{"pos": Vector3(-15, 1.75, 15), "size": Vector3(0.25, 3.5, 10)},
-		{"pos": Vector3(15, 1.75, -15), "size": Vector3(0.25, 3.5, 10)},
+		{"pos": Vector3(-20, 1.75, 0), "size": Vector3(30, 3.5, 0.3)},
+		{"pos": Vector3(20, 1.75, 0), "size": Vector3(30, 3.5, 0.3)},
+		{"pos": Vector3(0, 1.75, -20), "size": Vector3(0.3, 3.5, 30)},
+		{"pos": Vector3(0, 1.75, 20), "size": Vector3(0.3, 3.5, 30)},
+		{"pos": Vector3(-35, 1.75, -25), "size": Vector3(0.3, 3.5, 18)},
+		{"pos": Vector3(-35, 1.75, 25), "size": Vector3(0.3, 3.5, 18)},
+		{"pos": Vector3(35, 1.75, -25), "size": Vector3(0.3, 3.5, 18)},
+		{"pos": Vector3(35, 1.75, 25), "size": Vector3(0.3, 3.5, 18)},
+		{"pos": Vector3(-25, 1.75, -35), "size": Vector3(18, 3.5, 0.3)},
+		{"pos": Vector3(25, 1.75, -35), "size": Vector3(18, 3.5, 0.3)},
+		{"pos": Vector3(-25, 1.75, 35), "size": Vector3(18, 3.5, 0.3)},
+		{"pos": Vector3(25, 1.75, 35), "size": Vector3(18, 3.5, 0.3)},
+		{"pos": Vector3(-10, 1.75, -40), "size": Vector3(15, 3.5, 0.3)},
+		{"pos": Vector3(10, 1.75, 40), "size": Vector3(15, 3.5, 0.3)},
+		{"pos": Vector3(-40, 1.75, 10), "size": Vector3(0.3, 3.5, 15)},
+		{"pos": Vector3(40, 1.75, -10), "size": Vector3(0.3, 3.5, 15)},
+		{"pos": Vector3(-15, 1.75, -15), "size": Vector3(10, 3.5, 0.3)},
+		{"pos": Vector3(15, 1.75, 15), "size": Vector3(10, 3.5, 0.3)},
+		{"pos": Vector3(-15, 1.75, 15), "size": Vector3(0.3, 3.5, 10)},
+		{"pos": Vector3(15, 1.75, -15), "size": Vector3(0.3, 3.5, 10)},
 	]
 
 	for wd in wall_defs:
@@ -76,19 +75,15 @@ func _add_room_lights():
 		{"pos": Vector3(45, 2.8, 0), "color": Color(0.5, 0.4, 0.2), "energy": 0.25},
 		{"pos": Vector3(0, 2.8, -45), "color": Color(0.3, 0.5, 0.3), "energy": 0.2},
 		{"pos": Vector3(0, 2.8, 45), "color": Color(0.5, 0.2, 0.3), "energy": 0.3},
-		{"pos": Vector3(-20, 2.8, -20), "color": Color(0.6, 0.3, 0.2), "energy": 0.35},
-		{"pos": Vector3(20, 2.8, 20), "color": Color(0.3, 0.3, 0.6), "energy": 0.3},
-		{"pos": Vector3(-20, 2.8, 20), "color": Color(0.5, 0.5, 0.3), "energy": 0.25},
-		{"pos": Vector3(20, 2.8, -20), "color": Color(0.4, 0.2, 0.5), "energy": 0.3},
 	]
 	for ld in light_positions:
 		var light = OmniLight3D.new()
 		light.position = ld["pos"]
 		light.light_color = ld["color"]
 		light.light_energy = ld["energy"]
-		light.omni_range = 12.0
+		light.omni_range = 10.0
 		light.omni_attenuation = 1.5
-		light.shadow_enabled = true
+		light.shadow_enabled = false
 		add_child(light)
 
 func _spawn_apples():
@@ -138,3 +133,8 @@ func _on_menu_pressed():
 
 func _on_retry_pressed():
 	GameManager.restart()
+
+func _on_flashlight_pressed():
+	var flashlight = player.get_node("Camera3D/Flashlight")
+	if flashlight:
+		flashlight.visible = !flashlight.visible

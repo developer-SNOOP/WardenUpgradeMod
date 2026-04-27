@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://game001"]
+[gd_scene load_steps=30 format=3 uid="uid://game001"]
 
 [ext_resource type="Script" path="res://scripts/game_scene.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/player.gd" id="2"]
@@ -6,12 +6,17 @@
 [ext_resource type="Script" path="res://scripts/game_ui.gd" id="4"]
 [ext_resource type="Texture2D" path="res://textures/fedos_face.jpg" id="5"]
 [ext_resource type="Script" path="res://scripts/virtual_joystick.gd" id="6"]
+[ext_resource type="Texture2D" path="res://textures/floor_wood.png" id="7"]
+[ext_resource type="Texture2D" path="res://textures/wall_plaster.png" id="8"]
+[ext_resource type="Texture2D" path="res://textures/ceiling_dark.png" id="9"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_1"]
 vertices = PackedVector3Array(-54, 0.2, -54, -54, 0.2, 54, 54, 0.2, 54, 54, 0.2, -54)
 polygons = [PackedInt32Array(0, 1, 2, 3)]
-agent_radius = 0.4
+agent_radius = 0.5
 agent_height = 1.8
+cell_size = 0.5
+cell_height = 0.3
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_player"]
 size = Vector3(0.6, 1.8, 0.6)
@@ -31,11 +36,11 @@ bottom_radius = 0.4
 height = 2.1
 
 [sub_resource type="StandardMaterial3D" id="Material_fedos_body"]
-albedo_color = Color(0.05, 0.05, 0.05, 1)
-roughness = 0.95
+albedo_texture = ExtResource("5")
+uv1_scale = Vector3(1, 2, 1)
 emission_enabled = true
-emission = Color(0.2, 0.0, 0.0, 1)
-emission_energy_multiplier = 0.5
+emission = Color(0.25, 0.0, 0.0, 1)
+emission_energy_multiplier = 0.6
 
 [sub_resource type="BoxMesh" id="BoxMesh_fedos_head"]
 size = Vector3(0.6, 0.6, 0.6)
@@ -43,8 +48,8 @@ size = Vector3(0.6, 0.6, 0.6)
 [sub_resource type="StandardMaterial3D" id="Material_fedos_face"]
 albedo_texture = ExtResource("5")
 emission_enabled = true
-emission = Color(0.15, 0.0, 0.0, 1)
-emission_energy_multiplier = 0.4
+emission = Color(0.2, 0.0, 0.0, 1)
+emission_energy_multiplier = 0.5
 emission_texture = ExtResource("5")
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fedos"]
@@ -54,45 +59,42 @@ size = Vector3(0.8, 2.1, 0.8)
 size = Vector3(110, 0.2, 110)
 
 [sub_resource type="StandardMaterial3D" id="Material_floor"]
-albedo_color = Color(0.1, 0.07, 0.05, 1)
-roughness = 0.98
-uv1_scale = Vector3(20, 20, 1)
+albedo_texture = ExtResource("7")
+uv1_scale = Vector3(30, 30, 1)
+texture_repeat = true
+roughness = 0.95
 
 [sub_resource type="BoxMesh" id="BoxMesh_wall"]
 size = Vector3(110, 3.5, 0.4)
 
 [sub_resource type="StandardMaterial3D" id="Material_wall"]
-albedo_color = Color(0.16, 0.13, 0.1, 1)
+albedo_texture = ExtResource("8")
+uv1_scale = Vector3(20, 3, 1)
+texture_repeat = true
 roughness = 0.88
-uv1_scale = Vector3(15, 2, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ceiling"]
 size = Vector3(110, 0.2, 110)
 
 [sub_resource type="StandardMaterial3D" id="Material_ceiling"]
-albedo_color = Color(0.08, 0.06, 0.05, 1)
-roughness = 0.98
+albedo_texture = ExtResource("9")
+uv1_scale = Vector3(25, 25, 1)
+texture_repeat = true
+roughness = 0.95
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
 background_color = Color(0.01, 0.01, 0.02, 1)
 ambient_light_source = 1
-ambient_light_color = Color(0.04, 0.03, 0.05, 1)
-ambient_light_energy = 0.15
+ambient_light_color = Color(0.05, 0.04, 0.06, 1)
+ambient_light_energy = 0.2
 tonemap_mode = 2
-tonemap_exposure = 0.85
-ssao_enabled = true
-ssao_radius = 3.0
-ssao_intensity = 2.5
+tonemap_exposure = 0.9
 fog_enabled = true
 fog_light_color = Color(0.03, 0.02, 0.03, 1)
-fog_density = 0.03
+fog_density = 0.02
 fog_height = 3.5
-fog_height_density = 0.08
-volumetric_fog_enabled = true
-volumetric_fog_density = 0.015
-volumetric_fog_albedo = Color(0.04, 0.02, 0.04, 1)
-volumetric_fog_length = 30.0
+fog_height_density = 0.05
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_fedos_arm"]
 top_radius = 0.12
@@ -162,12 +164,6 @@ shape = SubResource("BoxShape3D_wall_ew")
 [node name="Environment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_1")
 
-[node name="DirectionalLight" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, -0.7, 0.7, 0, -0.7, -0.7, 0, 10, 0)
-light_color = Color(0.2, 0.15, 0.25, 1)
-light_energy = 0.08
-shadow_enabled = true
-
 [node name="Player" type="CharacterBody3D" parent="." groups=["player"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, 48)
 collision_layer = 1
@@ -182,11 +178,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 fov = 75.0
 
 [node name="Flashlight" type="SpotLight3D" parent="Player/Camera3D"]
-light_color = Color(0.92, 0.88, 0.72, 1)
-light_energy = 3.5
-spot_range = 18.0
-spot_attenuation = 0.6
-spot_angle = 30.0
+light_color = Color(0.95, 0.9, 0.75, 1)
+light_energy = 4.0
+spot_range = 22.0
+spot_attenuation = 0.5
+spot_angle = 32.0
 shadow_enabled = true
 
 [node name="Fedos" type="CharacterBody3D" parent="."]
@@ -224,16 +220,16 @@ shape = SubResource("BoxShape3D_fedos")
 [node name="FedosLight" type="OmniLight3D" parent="Fedos"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, 0)
 light_color = Color(0.9, 0.03, 0.03, 1)
-light_energy = 1.0
-omni_range = 6.0
+light_energy = 1.2
+omni_range = 7.0
 omni_attenuation = 1.2
 
 [node name="FedosEyeLight" type="SpotLight3D" parent="Fedos"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, -0.5)
 light_color = Color(1, 0.05, 0.05, 1)
-light_energy = 0.8
-spot_range = 12.0
-spot_angle = 22.0
+light_energy = 1.0
+spot_range = 14.0
+spot_angle = 24.0
 
 [node name="GameUI" type="CanvasLayer" parent="."]
 script = ExtResource("4")
@@ -243,12 +239,12 @@ anchors_preset = 0
 offset_left = 20.0
 offset_top = 20.0
 offset_right = 400.0
-offset_bottom = 70.0
+offset_bottom = 65.0
 theme_override_colors/font_color = Color(0.1, 0.9, 0.1, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 28
 text = "Apples: 0 / 30"
 
 [node name="DifficultyLabel" type="Label" parent="GameUI"]
@@ -258,10 +254,10 @@ anchor_right = 1.0
 offset_left = -250.0
 offset_top = 20.0
 offset_right = -20.0
-offset_bottom = 55.0
+offset_bottom = 50.0
 grow_horizontal = 0
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 0.6)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Medium"
 horizontal_alignment = 2
 
@@ -270,9 +266,9 @@ anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -150.0
-offset_top = 55.0
+offset_top = 50.0
 offset_right = -20.0
-offset_bottom = 80.0
+offset_bottom = 75.0
 grow_horizontal = 0
 theme_override_colors/font_color = Color(0.9, 0.9, 0.2, 0.7)
 theme_override_font_sizes/font_size = 14
@@ -287,13 +283,13 @@ anchor_right = 0.5
 offset_left = -300.0
 offset_top = 80.0
 offset_right = 300.0
-offset_bottom = 150.0
+offset_bottom = 145.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(1, 0.1, 0.1, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
 theme_override_constants/shadow_offset_x = 3
 theme_override_constants/shadow_offset_y = 3
-theme_override_font_sizes/font_size = 44
+theme_override_font_sizes/font_size = 42
 text = "FEDOS SPEEDS UP!"
 horizontal_alignment = 1
 visible = false
@@ -354,6 +350,21 @@ color = Color(0.3, 0, 0, 1)
 modulate = Color(1, 1, 1, 0)
 mouse_filter = 2
 
+[node name="FlashlightButton" type="Button" parent="GameUI"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -130.0
+offset_top = -70.0
+offset_right = -20.0
+offset_bottom = -15.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_font_sizes/font_size = 16
+text = "Flashlight"
+
 [node name="VirtualJoystick" type="Control" parent="GameUI"]
 layout_mode = 1
 anchors_preset = 0
@@ -405,15 +416,14 @@ theme_override_constants/separation = 18
 [node name="Title" type="Label" parent="GameUI/WinPanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.1, 0.9, 0.1, 1)
-theme_override_font_sizes/font_size = 42
+theme_override_font_sizes/font_size = 40
 text = "YOU ESCAPED!"
 horizontal_alignment = 1
 
 [node name="Desc" type="Label" parent="GameUI/WinPanel/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "You collected all the apples
-and escaped from Fedos!"
+text = "You collected all apples!"
 horizontal_alignment = 1
 
 [node name="MenuButton" type="Button" parent="GameUI/WinPanel/VBox"]
@@ -450,15 +460,14 @@ theme_override_constants/separation = 18
 [node name="Title" type="Label" parent="GameUI/LosePanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.1, 0.1, 1)
-theme_override_font_sizes/font_size = 42
+theme_override_font_sizes/font_size = 40
 text = "FEDOS GOT YOU!"
 horizontal_alignment = 1
 
 [node name="Desc" type="Label" parent="GameUI/LosePanel/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "Fedos caught you...
-Try again?"
+text = "Try again?"
 horizontal_alignment = 1
 
 [node name="RetryButton" type="Button" parent="GameUI/LosePanel/VBox"]
@@ -476,3 +485,4 @@ text = "Main Menu"
 [connection signal="pressed" from="GameUI/WinPanel/VBox/MenuButton" to="." method="_on_menu_pressed"]
 [connection signal="pressed" from="GameUI/LosePanel/VBox/RetryButton" to="." method="_on_retry_pressed"]
 [connection signal="pressed" from="GameUI/LosePanel/VBox/MenuButton" to="." method="_on_menu_pressed"]
+[connection signal="pressed" from="GameUI/FlashlightButton" to="." method="_on_flashlight_pressed"]
