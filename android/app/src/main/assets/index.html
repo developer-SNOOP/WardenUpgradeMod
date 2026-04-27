@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>Fat More Fat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Top Bar -->
+        <div id="top-bar">
+            <div id="fat-display">
+                <span id="fat-icon">🍔</span>
+                <span id="fat-count">0</span> Fat
+            </div>
+            <div id="fps-display">
+                <span id="fat-per-sec">0</span>/сек
+            </div>
+            <div id="prestige-display">
+                <span id="star-icon">⭐</span>
+                <span id="prestige-points">0</span>
+            </div>
+        </div>
+
+        <!-- Main Character Area -->
+        <div id="main-area">
+            <div id="food-rain-container"></div>
+            <div id="character-container" onclick="game.tap()">
+                <canvas id="character-canvas" width="300" height="300"></canvas>
+                <div id="tap-effect-container"></div>
+            </div>
+            <div id="current-food-display"></div>
+            <div id="combo-display" class="hidden">
+                <span id="combo-count">0</span>x COMBO!
+            </div>
+            <div id="fever-bar-container" class="hidden">
+                <div id="fever-bar"></div>
+                <span id="fever-text">FEVER MODE!</span>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div id="nav-tabs">
+            <button class="nav-tab active" data-tab="upgrades" onclick="game.switchTab('upgrades')">🔧 Улучшения</button>
+            <button class="nav-tab" data-tab="food" onclick="game.switchTab('food')">🍕 Еда</button>
+            <button class="nav-tab" data-tab="minigame" onclick="game.switchTab('minigame')">🎮 Мини-игра</button>
+            <button class="nav-tab" data-tab="achievements" onclick="game.switchTab('achievements')">🏆 Достижения</button>
+            <button class="nav-tab" data-tab="prestige" onclick="game.switchTab('prestige')">⭐ Престиж</button>
+            <button class="nav-tab" data-tab="stats" onclick="game.switchTab('stats')">📊 Стата</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content">
+            <!-- Upgrades Tab -->
+            <div id="tab-upgrades" class="tab-panel active">
+                <div id="upgrades-list"></div>
+            </div>
+
+            <!-- Food Tab -->
+            <div id="tab-food" class="tab-panel">
+                <h3>🍽 Меню еды</h3>
+                <p class="tab-desc">Выбирай еду для поедания. Чем вкуснее — тем больше жира!</p>
+                <div id="food-list"></div>
+            </div>
+
+            <!-- Mini-game Tab -->
+            <div id="tab-minigame" class="tab-panel">
+                <h3>🎮 Поймай Еду!</h3>
+                <p class="tab-desc">Лови падающую еду для бонусных очков!</p>
+                <div id="minigame-area">
+                    <canvas id="minigame-canvas" width="360" height="400"></canvas>
+                    <button id="minigame-start-btn" onclick="game.minigame.start()">Начать игру!</button>
+                    <div id="minigame-score" class="hidden">Счёт: <span id="mg-score">0</span></div>
+                </div>
+            </div>
+
+            <!-- Achievements Tab -->
+            <div id="tab-achievements" class="tab-panel">
+                <h3>🏆 Достижения</h3>
+                <p class="tab-desc">Разблокируй достижения и получи бонусы!</p>
+                <div id="achievements-list"></div>
+            </div>
+
+            <!-- Prestige Tab -->
+            <div id="tab-prestige" class="tab-panel">
+                <h3>⭐ Престиж — Перерождение</h3>
+                <p class="tab-desc">Сбрось прогресс и получи мощные множители!</p>
+                <div id="prestige-info"></div>
+                <button id="prestige-btn" onclick="game.doPrestige()">Переродиться</button>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="tab-stats" class="tab-panel">
+                <h3>📊 Статистика</h3>
+                <div id="stats-list"></div>
+            </div>
+        </div>
+
+        <!-- Notification -->
+        <div id="notification" class="hidden"></div>
+
+        <!-- Achievement Popup -->
+        <div id="achievement-popup" class="hidden">
+            <div id="achievement-popup-content">
+                <span id="achievement-popup-icon">🏆</span>
+                <span id="achievement-popup-text"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
