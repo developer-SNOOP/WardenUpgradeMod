@@ -17,6 +17,10 @@ extends CanvasLayer
 @onready var screamer_image: TextureRect = $ScreamerRect/ScreamerImage
 @onready var battery_bar: ProgressBar = $BatteryBar
 @onready var battery_label: Label = $BatteryLabel
+@onready var hide_prompt: Label = $HidePrompt
+@onready var breath_bar: ProgressBar = $BreathBar
+@onready var breath_label: Label = $BreathLabel
+@onready var trap_label: Label = $TrapLabel
 
 var warning_timer: float = 0.0
 var shake_amount: float = 0.0
@@ -43,13 +47,32 @@ var flashlight_on: bool = true
 # Camera shake
 var camera_shake_intensity: float = 0.0
 
+# Locker hiding system
+var is_hiding: bool = false
+var current_locker: Node3D = null
+var near_locker: Node3D = null
+var hold_breath_active: bool = false
+var breath_stamina: float = 100.0
+var breath_drain: float = 15.0
+var breath_regen: float = 25.0
+var hide_touch_area: Rect2 = Rect2()
+var breath_touch_index: int = -1
+
+# Noise trap system
+var traps_available: int = 3
+var trap_touch_area: Rect2 = Rect2()
+
 func _ready():
 	win_panel.visible = false
 	lose_panel.visible = false
 	speed_warning.visible = false
 	heartbeat_label.visible = false
 	screamer_rect.visible = false
+	hide_prompt.visible = false
+	breath_bar.visible = false
+	breath_label.visible = false
 	update_apple_count(0)
+	_update_trap_label()
 	vignette.modulate.a = 0.0
 	GameManager.apple_collected.connect(_on_apple_collected)
 	GameManager.game_won.connect(_on_game_won)
@@ -78,6 +101,12 @@ func _update_touch_areas():
 	if sprint_button:
 		var r = sprint_button.get_global_rect()
 		sprint_touch_area = Rect2(r.position.x - pad, r.position.y - pad, r.size.x + pad * 2, r.size.y + pad * 2)
+	if hide_prompt and hide_prompt.visible:
+		var r = hide_prompt.get_global_rect()
+		hide_touch_area = Rect2(r.position.x - pad, r.position.y - pad, r.size.x + pad * 2, r.size.y + pad * 2)
+	if trap_label:
+		var r = trap_label.get_global_rect()
+		trap_touch_area = Rect2(r.position.x - pad, r.position.y - pad, r.size.x + pad * 2, r.size.y + pad * 2)
 
 func _input(event):
 	if not GameManager.game_active:
@@ -86,7 +115,15 @@ func _input(event):
 	if event is InputEventScreenTouch:
 		_update_touch_areas()
 		if event.pressed:
-			if flashlight_touch_area.has_point(event.position):
+			if is_hiding:
+				# While hiding, touching screen = hold breath
+				breath_touch_index = event.index
+				hold_breath_active = true
+			elif hide_prompt.visible and hide_touch_area.has_point(event.position):
+				_enter_locker()
+			elif trap_touch_area.has_point(event.position) and traps_available > 0:
+				_throw_noise_trap()
+			elif flashlight_touch_area.has_point(event.position):
 				_toggle_flashlight()
 			elif sprint_touch_area.has_point(event.position):
 				sprint_touch_index = event.index
@@ -95,6 +132,14 @@ func _input(event):
 			if event.index == sprint_touch_index:
 				sprint_touch_index = -1
 				is_sprinting_touch = false
+			if event.index == breath_touch_index:
+				breath_touch_index = -1
+				hold_breath_active = false
+
+	# Double-tap to exit locker
+	if event is InputEventScreenTouch and is_hiding and not event.pressed:
+		if event.double_tap if "double_tap" in event else false:
+			_exit_locker()
 
 func _toggle_flashlight():
 	var player = get_tree().get_first_node_in_group("player")
@@ -107,6 +152,76 @@ func _toggle_flashlight():
 				flashlight_label.text = "[Flashlight ON]"
 			else:
 				flashlight_label.text = "[Flashlight OFF]"
+
+func _enter_locker():
+	if near_locker == null:
+		return
+	is_hiding = true
+	current_locker = near_locker
+	var player = get_tree().get_first_node_in_group("player")
+	if player:
+		player.set_physics_process(false)
+		player.visible = false
+		player.global_position = current_locker.global_position + Vector3(0, 0.5, 0)
+	hide_prompt.text = "HIDING... Hold screen to hold breath\nDouble-tap to exit"
+	joystick.visible = false
+	flashlight_label.visible = false
+	sprint_button.visible = false
+
+func _exit_locker():
+	is_hiding = false
+	hold_breath_active = false
+	breath_touch_index = -1
+	var player = get_tree().get_first_node_in_group("player")
+	if player:
+		player.set_physics_process(true)
+		player.visible = true
+		if current_locker:
+			player.global_position = current_locker.global_position + Vector3(0, 0.5, 1.2)
+	current_locker = null
+	hide_prompt.visible = false
+	breath_bar.visible = false
+	breath_label.visible = false
+	joystick.visible = true
+	flashlight_label.visible = true
+	sprint_button.visible = true
+
+func force_exit_locker():
+	_exit_locker()
+
+func _throw_noise_trap():
+	if traps_available <= 0:
+		return
+	traps_available -= 1
+	_update_trap_label()
+	var player = get_tree().get_first_node_in_group("player")
+	if player == null:
+		return
+	# Create noise at player's forward direction
+	var forward = -player.global_transform.basis.z.normalized()
+	var trap_pos = player.global_position + forward * 8.0
+	# Attract Fedos to trap position
+	var fedos = _find_fedos()
+	if fedos:
+		fedos.global_position = fedos.global_position
+		# Set a temporary target override
+		var dir_to_trap = (trap_pos - fedos.global_position)
+		dir_to_trap.y = 0
+		dir_to_trap = dir_to_trap.normalized()
+		fedos.velocity.x = dir_to_trap.x * fedos.current_speed * 1.5
+		fedos.velocity.z = dir_to_trap.z * fedos.current_speed * 1.5
+	# Visual feedback
+	speed_warning.visible = true
+	speed_warning.text = "NOISE TRAP THROWN!"
+	warning_timer = 1.5
+
+func _update_trap_label():
+	if trap_label:
+		trap_label.text = "[Trap x%d]" % traps_available
+		if traps_available <= 0:
+			trap_label.modulate = Color(0.5, 0.5, 0.5, 0.4)
+		else:
+			trap_label.modulate = Color(0.9, 0.6, 0.2, 0.7)
 
 func _process(delta):
 	if warning_timer > 0:
@@ -124,14 +239,45 @@ func _process(delta):
 		fps_label.text = "FPS: %d" % Engine.get_frames_per_second()
 
 	var player = get_tree().get_first_node_in_group("player")
-	if player:
+	if player and not is_hiding:
 		stamina_bar.value = player.stamina
 		stamina_bar.visible = player.stamina < player.max_stamina
 		sprint_label.visible = player.stamina < player.max_stamina
 		player.is_sprinting_touch = is_sprinting_touch
 
+	# Breath system when hiding
+	if is_hiding:
+		breath_bar.visible = true
+		breath_label.visible = true
+		if hold_breath_active:
+			breath_stamina = max(0, breath_stamina - breath_drain * delta)
+			breath_label.text = "HOLDING BREATH..."
+			breath_label.modulate = Color(0.4, 0.6, 1.0, 0.6 + sin(heartbeat_time * 3.0) * 0.4)
+			if breath_stamina <= 0:
+				hold_breath_active = false
+				breath_touch_index = -1
+		else:
+			breath_stamina = min(100.0, breath_stamina + breath_regen * delta)
+			breath_label.text = "Release to breathe..."
+			breath_label.modulate = Color(1, 1, 1, 0.5)
+		breath_bar.value = breath_stamina
+
+	# Locker proximity check
+	if GameManager.game_active and player and not is_hiding:
+		near_locker = null
+		var lockers = get_tree().get_nodes_in_group("locker")
+		var min_dist = 3.0
+		for locker in lockers:
+			var d = player.global_position.distance_to(locker.global_position)
+			if d < min_dist:
+				min_dist = d
+				near_locker = locker
+		hide_prompt.visible = near_locker != null
+		if near_locker:
+			hide_prompt.text = "[TAP TO HIDE]"
+
 	# Flashlight battery system
-	if GameManager.game_active and player:
+	if GameManager.game_active and player and not is_hiding:
 		var flashlight = player.get_node_or_null("Camera3D/Flashlight")
 		if flashlight and flashlight.visible:
 			battery = max(0, battery - battery_drain * delta)
@@ -165,7 +311,7 @@ func _process(delta):
 			screamer_rect.visible = false
 			screamer_rect.position = Vector2.ZERO
 
-	# Random mini-scare (screen flicker when Fedos is close)
+	# Random mini-scare
 	if GameManager.game_active:
 		random_scare_timer += delta
 		if random_scare_timer >= next_scare_time:
@@ -188,7 +334,6 @@ func _process(delta):
 				if dist < 10.0:
 					heartbeat_label.text = "!! HEARTBEAT RACING !!"
 					vignette.modulate.a = max(vignette.modulate.a, intensity * 0.25)
-					# Camera shake when very close
 					camera_shake_intensity = intensity * 0.3
 				elif dist < 20.0:
 					heartbeat_label.text = "... thump ... thump ..."
@@ -245,6 +390,8 @@ func _on_game_won():
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _on_game_lost():
+	if is_hiding:
+		_exit_locker()
 	trigger_screamer()
 	lose_panel.visible = true
 	joystick.visible = false

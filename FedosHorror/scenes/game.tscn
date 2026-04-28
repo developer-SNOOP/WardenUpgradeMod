@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://game001"]
+[gd_scene load_steps=34 format=3 uid="uid://game001"]
 
 [ext_resource type="Script" path="res://scripts/game_scene.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/player.gd" id="2"]
@@ -28,10 +28,12 @@ size = Vector3(110, 3.5, 0.4)
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall_ew"]
 size = Vector3(110, 3.5, 0.4)
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_fedos"]
-top_radius = 0.35
-bottom_radius = 0.35
-height = 1.8
+[sub_resource type="BoxMesh" id="BoxMesh_fedos_torso"]
+size = Vector3(0.6, 0.8, 0.3)
+
+[sub_resource type="SphereMesh" id="SphereMesh_fedos_head"]
+radius = 0.22
+height = 0.44
 
 [sub_resource type="StandardMaterial3D" id="Material_fedos_body"]
 albedo_color = Color(0.03, 0.03, 0.03, 1)
@@ -94,9 +96,14 @@ fog_height = 3.5
 fog_height_density = 0.04
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_fedos_arm"]
-top_radius = 0.1
-bottom_radius = 0.08
-height = 1.0
+top_radius = 0.08
+bottom_radius = 0.06
+height = 0.7
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_fedos_leg"]
+top_radius = 0.09
+bottom_radius = 0.07
+height = 0.85
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_fedos_back"]
 size = Vector2(0.9, 1.2)
@@ -200,27 +207,43 @@ collision_mask = 1
 script = ExtResource("3")
 
 [node name="Body" type="MeshInstance3D" parent="Fedos"]
-mesh = SubResource("CapsuleMesh_fedos")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+mesh = SubResource("BoxMesh_fedos_torso")
+surface_material_override/0 = SubResource("Material_fedos_body")
+
+[node name="Head" type="MeshInstance3D" parent="Fedos"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72, 0)
+mesh = SubResource("SphereMesh_fedos_head")
 surface_material_override/0 = SubResource("Material_fedos_body")
 
 [node name="FaceFront" type="MeshInstance3D" parent="Fedos"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, -0.18)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.62, -0.18)
 mesh = SubResource("PlaneMesh_fedos_face")
 surface_material_override/0 = SubResource("Material_fedos_face")
 
 [node name="FaceBack" type="MeshInstance3D" parent="Fedos"]
-transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.1, 0.18)
+transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, 0, 0.62, 0.18)
 mesh = SubResource("PlaneMesh_fedos_back")
 surface_material_override/0 = SubResource("Material_fedos_back")
 
 [node name="LeftArm" type="MeshInstance3D" parent="Fedos"]
-transform = Transform3D(1, 0, 0, 0, 0.866, 0.5, 0, -0.5, 0.866, -0.45, 0.0, -0.2)
+transform = Transform3D(1, 0, 0, 0, 0.866, 0.5, 0, -0.5, 0.866, -0.42, 0.1, -0.1)
 mesh = SubResource("CapsuleMesh_fedos_arm")
 surface_material_override/0 = SubResource("Material_fedos_body")
 
 [node name="RightArm" type="MeshInstance3D" parent="Fedos"]
-transform = Transform3D(1, 0, 0, 0, 0.866, 0.5, 0, -0.5, 0.866, 0.45, 0.0, -0.2)
+transform = Transform3D(1, 0, 0, 0, 0.866, 0.5, 0, -0.5, 0.866, 0.42, 0.1, -0.1)
 mesh = SubResource("CapsuleMesh_fedos_arm")
+surface_material_override/0 = SubResource("Material_fedos_body")
+
+[node name="LeftLeg" type="MeshInstance3D" parent="Fedos"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15, -0.72, 0)
+mesh = SubResource("CapsuleMesh_fedos_leg")
+surface_material_override/0 = SubResource("Material_fedos_body")
+
+[node name="RightLeg" type="MeshInstance3D" parent="Fedos"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, -0.72, 0)
+mesh = SubResource("CapsuleMesh_fedos_leg")
 surface_material_override/0 = SubResource("Material_fedos_body")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Fedos"]
@@ -494,6 +517,83 @@ theme_override_colors/font_color = Color(0.7, 0.7, 0.3, 0.5)
 theme_override_font_sizes/font_size = 10
 text = "Battery"
 horizontal_alignment = 1
+
+[node name="HidePrompt" type="Label" parent="GameUI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -120.0
+offset_top = 40.0
+offset_right = 120.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 0.2, 0.8)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 20
+text = "[TAP TO HIDE]"
+horizontal_alignment = 1
+visible = false
+
+[node name="BreathBar" type="ProgressBar" parent="GameUI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -30.0
+offset_right = 80.0
+offset_bottom = -18.0
+grow_horizontal = 2
+grow_vertical = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
+visible = false
+
+[node name="BreathLabel" type="Label" parent="GameUI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = -50.0
+offset_right = 100.0
+offset_bottom = -32.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.4, 0.6, 1.0, 0.7)
+theme_override_font_sizes/font_size = 14
+text = ""
+horizontal_alignment = 1
+visible = false
+
+[node name="TrapLabel" type="Label" parent="GameUI"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -135.0
+offset_top = -155.0
+offset_right = -15.0
+offset_bottom = -115.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.9, 0.6, 0.2, 0.7)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.6)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 16
+text = "[Trap x3]"
+horizontal_alignment = 1
+mouse_filter = 2
 
 [node name="WinPanel" type="Panel" parent="GameUI"]
 anchors_preset = 8
