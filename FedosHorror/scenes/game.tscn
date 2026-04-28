@@ -450,6 +450,51 @@ offset_right = 100.0
 offset_bottom = 100.0
 color = Color(1, 1, 1, 0.3)
 
+[node name="ScreamerRect" type="ColorRect" parent="GameUI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1, 0, 0, 1)
+visible = false
+mouse_filter = 2
+
+[node name="ScreamerImage" type="TextureRect" parent="GameUI/ScreamerRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("5")
+expand_mode = 1
+stretch_mode = 5
+modulate = Color(1.2, 0.4, 0.4, 1)
+
+[node name="BatteryBar" type="ProgressBar" parent="GameUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -140.0
+offset_top = 10.0
+offset_right = -15.0
+offset_bottom = 22.0
+grow_horizontal = 0
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="BatteryLabel" type="Label" parent="GameUI"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -140.0
+offset_top = 24.0
+offset_right = -15.0
+offset_bottom = 38.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(0.7, 0.7, 0.3, 0.5)
+theme_override_font_sizes/font_size = 10
+text = "Battery"
+horizontal_alignment = 1
+
 [node name="WinPanel" type="Panel" parent="GameUI"]
 anchors_preset = 8
 anchor_left = 0.5

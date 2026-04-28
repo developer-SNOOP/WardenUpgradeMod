@@ -25,6 +25,10 @@ var time: float = 0.0
 var flicker_timer: float = 0.0
 var next_flicker: float = 3.0
 var music_player: AudioStreamPlayer = null
+var jumpscare_timer: float = 0.0
+var next_jumpscare: float = 15.0
+var fedos_target_x: float = 0.0
+var fedos_drift_speed: float = 0.0
 
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -43,47 +47,83 @@ func _ready():
 	_update_quality_label()
 	_load_settings_ui()
 	_start_menu_music()
+	next_jumpscare = randf_range(10.0, 25.0)
+	fedos_target_x = fedos_image.position.x if fedos_image else 100.0
 
 func _process(delta):
 	time += delta
 
-	# Title pulse
-	var pulse = 0.55 + sin(time * 2.0) * 0.45
-	title_label.modulate = Color(pulse, 0.06, 0.08, 1.0)
+	# FNAF-style title glitch effect
+	var glitch = randf()
+	if glitch < 0.02:
+		title_label.position.x = randf_range(-3, 3)
+		title_label.modulate = Color(1.0, 0.0, 0.0, 1.0)
+	elif glitch < 0.04:
+		title_label.position.x = 0
+		title_label.modulate = Color(0.0, 0.9, 0.0, 0.4)
+	else:
+		title_label.position.x = lerp(title_label.position.x, 0.0, delta * 10.0)
+		var pulse = 0.55 + sin(time * 2.0) * 0.45
+		title_label.modulate = Color(pulse, 0.06, 0.08, 1.0)
 
-	# Glow lines animate
+	# Glow lines animate with varying speed
 	if glow_line1:
 		glow_line1.modulate.a = 0.3 + sin(time * 1.5) * 0.15
+		glow_line1.position.y = 80.0 + sin(time * 0.3) * 20.0
 	if glow_line2:
 		glow_line2.modulate.a = 0.25 + sin(time * 1.8 + 1.0) * 0.15
+		glow_line2.position.y = 640.0 + sin(time * 0.4) * 15.0
 
-	# Scan line moves down
+	# Multiple scan lines like FNAF camera
 	if scan_line:
 		var screen_h = get_viewport().get_visible_rect().size.y
-		scan_line.position.y = fmod(time * 80.0, screen_h + 10.0) - 5.0
-		scan_line.modulate.a = 0.2 + sin(time * 3.0) * 0.1
+		scan_line.position.y = fmod(time * 120.0, screen_h + 10.0) - 5.0
+		scan_line.modulate.a = 0.15 + sin(time * 5.0) * 0.1
 
-	# Fedos image: subtle breathing and occasional flicker
+	# Fedos image: FNAF-style lurking behavior
 	if fedos_image:
-		var breathe = 1.0 + sin(time * 1.5) * 0.02
+		var breathe = 1.0 + sin(time * 1.2) * 0.015
 		fedos_image.scale = Vector2(breathe, breathe)
+
+		# Slow drift left-right like lurking
+		fedos_image.position.x = lerp(fedos_image.position.x, fedos_target_x + sin(time * 0.5) * 15.0, delta * 0.8)
 
 		flicker_timer += delta
 		if flicker_timer > next_flicker:
 			flicker_timer = 0.0
-			next_flicker = randf_range(2.0, 6.0)
+			next_flicker = randf_range(1.5, 5.0)
+			# FNAF-style: fedos disappears and reappears
+			fedos_image.modulate.a = 0.0
+		elif flicker_timer < 0.08:
+			fedos_image.modulate.a = 0.9
+		elif flicker_timer < 0.15 and fedos_image.modulate.a > 0.8:
 			fedos_image.modulate.a = 0.1
-		elif flicker_timer < 0.1 and fedos_image.modulate.a < 0.5:
-			fedos_image.modulate.a = 0.6
+		elif flicker_timer < 0.2:
+			fedos_image.modulate.a = 0.85
 		else:
-			fedos_image.modulate.a = lerp(fedos_image.modulate.a, 0.55, delta * 2.0)
+			fedos_image.modulate.a = lerp(fedos_image.modulate.a, 0.7, delta * 2.0)
 
 	if fedos_glow:
-		fedos_glow.modulate.a = 0.1 + sin(time * 2.5) * 0.08
+		fedos_glow.modulate.a = 0.08 + sin(time * 3.0) * 0.06
 
-	# Static noise flicker
+	# Static noise - more intense like FNAF camera
 	if static_noise:
-		static_noise.modulate.a = randf_range(0.01, 0.04)
+		static_noise.modulate.a = randf_range(0.02, 0.06)
+
+	# FNAF-style periodic jumpscare tease on menu
+	jumpscare_timer += delta
+	if jumpscare_timer >= next_jumpscare:
+		jumpscare_timer = 0.0
+		next_jumpscare = randf_range(12.0, 30.0)
+		_menu_jumpscare_tease()
+
+func _menu_jumpscare_tease():
+	if fedos_image:
+		fedos_image.modulate = Color(1.5, 0.3, 0.3, 1.0)
+		fedos_image.scale = Vector2(1.15, 1.15)
+		var tween = create_tween()
+		tween.tween_property(fedos_image, "modulate", Color(1.0, 0.85, 0.85, 0.7), 0.5)
+		tween.tween_property(fedos_image, "scale", Vector2(1.0, 1.0), 0.5)
 
 func _on_play_pressed():
 	if music_player:
@@ -95,7 +135,7 @@ func _start_menu_music():
 	if stream:
 		music_player = AudioStreamPlayer.new()
 		music_player.stream = stream
-		music_player.volume_db = -6.0
+		music_player.volume_db = -4.0
 		music_player.autoplay = false
 		add_child(music_player)
 		music_player.play()

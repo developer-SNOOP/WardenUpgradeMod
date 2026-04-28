@@ -65,23 +65,27 @@ func _build_interior_walls():
 
 func _add_room_lights():
 	var light_positions = [
-		{"pos": Vector3(-30, 2.8, -30), "color": Color(0.6, 0.45, 0.25), "energy": 0.5},
-		{"pos": Vector3(30, 2.8, -30), "color": Color(0.3, 0.3, 0.55), "energy": 0.35},
-		{"pos": Vector3(-30, 2.8, 30), "color": Color(0.5, 0.2, 0.2), "energy": 0.3},
-		{"pos": Vector3(30, 2.8, 30), "color": Color(0.2, 0.4, 0.2), "energy": 0.25},
-		{"pos": Vector3(0, 2.8, 0), "color": Color(0.7, 0.5, 0.3), "energy": 0.4},
-		{"pos": Vector3(-45, 2.8, 0), "color": Color(0.4, 0.3, 0.5), "energy": 0.3},
-		{"pos": Vector3(45, 2.8, 0), "color": Color(0.5, 0.4, 0.2), "energy": 0.25},
-		{"pos": Vector3(0, 2.8, -45), "color": Color(0.3, 0.5, 0.3), "energy": 0.2},
-		{"pos": Vector3(0, 2.8, 45), "color": Color(0.5, 0.2, 0.3), "energy": 0.3},
+		{"pos": Vector3(-30, 2.8, -30), "color": Color(0.7, 0.5, 0.3), "energy": 0.6, "range": 14.0},
+		{"pos": Vector3(30, 2.8, -30), "color": Color(0.35, 0.35, 0.6), "energy": 0.4, "range": 12.0},
+		{"pos": Vector3(-30, 2.8, 30), "color": Color(0.6, 0.25, 0.2), "energy": 0.35, "range": 11.0},
+		{"pos": Vector3(30, 2.8, 30), "color": Color(0.25, 0.5, 0.25), "energy": 0.3, "range": 10.0},
+		{"pos": Vector3(0, 2.8, 0), "color": Color(0.8, 0.6, 0.35), "energy": 0.5, "range": 16.0},
+		{"pos": Vector3(-45, 2.8, 0), "color": Color(0.5, 0.35, 0.55), "energy": 0.35, "range": 12.0},
+		{"pos": Vector3(45, 2.8, 0), "color": Color(0.6, 0.45, 0.25), "energy": 0.3, "range": 11.0},
+		{"pos": Vector3(0, 2.8, -45), "color": Color(0.35, 0.55, 0.35), "energy": 0.25, "range": 10.0},
+		{"pos": Vector3(0, 2.8, 45), "color": Color(0.6, 0.25, 0.35), "energy": 0.35, "range": 12.0},
+		{"pos": Vector3(-15, 2.8, -15), "color": Color(0.8, 0.4, 0.2), "energy": 0.2, "range": 8.0},
+		{"pos": Vector3(15, 2.8, 15), "color": Color(0.3, 0.3, 0.7), "energy": 0.2, "range": 8.0},
+		{"pos": Vector3(-40, 2.8, -40), "color": Color(0.5, 0.2, 0.15), "energy": 0.15, "range": 7.0},
+		{"pos": Vector3(40, 2.8, 40), "color": Color(0.15, 0.4, 0.2), "energy": 0.15, "range": 7.0},
 	]
 	for ld in light_positions:
 		var light = OmniLight3D.new()
 		light.position = ld["pos"]
 		light.light_color = ld["color"]
 		light.light_energy = ld["energy"]
-		light.omni_range = 10.0
-		light.omni_attenuation = 1.5
+		light.omni_range = ld["range"]
+		light.omni_attenuation = 1.2
 		light.shadow_enabled = false
 		add_child(light)
 
