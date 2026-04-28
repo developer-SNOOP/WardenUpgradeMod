@@ -53,6 +53,7 @@ signal game_lost()
 func _ready():
 	_load_settings()
 	_apply_quality()
+	_apply_volume()
 
 func start_game():
 	var settings = difficulty_settings[current_difficulty]
@@ -170,6 +171,11 @@ func _load_settings():
 		head_bob_enabled = config.get_value("settings", "head_bob_enabled", true)
 		current_difficulty = config.get_value("settings", "difficulty", Difficulty.MEDIUM)
 		current_quality = config.get_value("settings", "quality", Quality.MEDIUM)
+
+func _apply_volume():
+	var bus_idx = AudioServer.get_bus_index("Master")
+	if bus_idx >= 0:
+		AudioServer.set_bus_volume_db(bus_idx, linear_to_db(master_volume))
 
 func save_settings():
 	_save_settings()

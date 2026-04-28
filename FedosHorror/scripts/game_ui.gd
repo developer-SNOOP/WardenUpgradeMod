@@ -206,6 +206,11 @@ func _process(delta):
 			if cam:
 				cam.h_offset = sin(heartbeat_time * 15.0) * camera_shake_intensity * 0.02
 				cam.v_offset = cos(heartbeat_time * 12.0) * camera_shake_intensity * 0.015
+		elif player:
+			var cam = player.get_node_or_null("Camera3D")
+			if cam:
+				cam.h_offset = 0.0
+				cam.v_offset = 0.0
 
 func _trigger_mini_scare():
 	vignette.modulate.a = 0.5

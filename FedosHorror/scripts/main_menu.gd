@@ -206,6 +206,7 @@ func _on_sensitivity_changed(value: float):
 
 func _on_volume_changed(value: float):
 	GameManager.master_volume = value
+	GameManager._apply_volume()
 	volume_value.text = "%d%%" % int(value * 100)
 
 func _on_fps_toggled(toggled: bool):
